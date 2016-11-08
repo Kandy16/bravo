@@ -9,17 +9,24 @@ Created on Mon Nov  7 03:36:00 2016
 
 import socket
 import json
+import sys
     
-server_details=('localhost',8080)
+
     
 server_socket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-server_socket.bind(server_details)
+
+try:
+    server_socket.bind(('localhost',8080))
+except socket.error as msg:
+    print ('Bind to socket failed.'+' Message ' + msg[1])
+    sys.exit()
+    
 server_socket.listen(5)
 
-conn,address=server_socket.accept()
-print ("connected on",address)
 while True:
     print('listening')
+    conn,address=server_socket.accept()
+    print ("connected on",address[1])
     dataFromClient=conn.recv(4096)
     print('Data from client:',dataFromClient.decode())
     
