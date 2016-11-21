@@ -7,8 +7,8 @@ Created on Sun Nov 20 22:05:14 2016
 @author: Daniel Akbari
 """
 
-from assignment4_bravo_Q1_http import extractHeaderAndResource
-from assignment4_bravo_Q1_http import getResource
+from assign4_p1 import extractHeaderAndResource
+from assign4_p1 import getResource
 import urllib
 
 import os
@@ -20,15 +20,22 @@ import re
 def extractImageUrl(fileLocation):
     urllist=[]
     pattern=re.compile('src="([^"]+)"') # regex for extracting the value of src attribute
+    hrefPattern=re.compile('href="([^"]+)"')
     with  open(fileLocation) as f:
         for l in f:
+            print("**** currently reading::",l)
             if "<img" in l:
                 matches = re.findall(pattern,l)
                 urllist.append(matches[0])
+                print("****** found an img tab:")
+            elif "<link" in l:
+                found=re.findall(hrefPattern,l)
+                urllist.append(found[0])
+                
 
     return urllist
 
-#fileLocation=input("Enter the html file location of the downloaded file:")
+#fileLoc=input("Enter the html file location of the downloaded file:")
 fileLoc="C:\\Users\\ShreeH\\resource"
 #url=input("Enter the url from which the file was downloaded:")
 inputurl='http://west.uni-koblenz.de'
@@ -44,8 +51,6 @@ def savingResources(data,iname):
     if (data):
         header,resource = extractHeaderAndResource(data)
         if header is not None:
-            print("saving header",header)          
-            #header = header.decode('utf-8')
             if(header):
                 fopen = open(iname+'.resource.header','wb')
                 fopen.write(header)
@@ -57,22 +62,19 @@ def savingResources(data,iname):
         #Check the format of resource and based on that
         # the serialization will be different
         if resource is not None:
-            print("saving resource",resource)
             if(resource):
                 fopen = open(os.getcwd()+"\\"+iname,'wb')
+                #resource.strip(b"\r\n\r\n")
                 fopen.write(resource)
                 fopen.flush()
                 fopen.close()
-#                with open(os.getcwd()+"\\"+iname,'wb') as fopen:
-#                    fopen.write(fopen)
-#                    #fopen.flush()
-#
-#                    fopen.close()
-
+#               
             else:
                 print('Resource content Extract failed')
 
-            
+
+
+        
 
 
 # iterate over the url to download the image 
@@ -82,6 +84,7 @@ for url in listOfURL:
     imageName=(path[path.rfind("/")+1:])
     if url.find(inputurl)== -1:
         #append the input url to construct the absolute path for the image
+        
         url=inputurl+url;
         data = getResource(socClient,url)
         savingResources(data,imageName)
