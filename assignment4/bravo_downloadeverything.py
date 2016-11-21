@@ -45,10 +45,10 @@ def savingResources(data,iname):
         header,resource = extractHeaderAndResource(data)
         if header is not None:
             print("saving header",header)          
-            header = header.decode('utf-8')
+            #header = header.decode('utf-8')
             if(header):
                 fopen = open(iname+'.resource.header','wb')
-                fopen.write(data)
+                fopen.write(header)
                 fopen.flush()
                 fopen.close()
             else:
@@ -60,7 +60,7 @@ def savingResources(data,iname):
             print("saving resource",resource)
             if(resource):
                 fopen = open(os.getcwd()+"\\"+iname,'wb')
-                fopen.write(data)
+                fopen.write(resource)
                 fopen.flush()
                 fopen.close()
 #                with open(os.getcwd()+"\\"+iname,'wb') as fopen:
