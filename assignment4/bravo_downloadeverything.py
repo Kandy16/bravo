@@ -44,12 +44,16 @@ urlPath = urlObj[2]
 
 
 listOfURL=extractImageUrl(fileLoc)
-print("List of URLs",listOfURL)
+
+#filters out list .css and non image files
+imageList = list(filter(lambda x: x.find('.ico')!=-1 or x.find('.png')!=-1 or x.find('.jpg')!=-1 or x.find('.jpg')!=-1 ,listOfURL))
+
+print("List of URLs",imageList)
   
 
 
 # iterate over the url to download the image 
-for url in listOfURL:
+for url in imageList:
    
     try:
         socClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
