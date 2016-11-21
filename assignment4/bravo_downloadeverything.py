@@ -19,30 +19,24 @@ import re
 
 def extractImageUrl(fileLocation):
     urllist=[]
-    pattern=re.compile('src="([^"]+)"') # regex for extracting the value of src attribute
-    hrefPattern=re.compile('href="([^"]+)"')
+    pattern=re.compile(r'<img [^>]*src="([^"]+)') # regex for extracting the value of src attribute
+    hrefPattern=re.compile(r'<link [^>]*href="([^"]+)')
     with  open(fileLocation) as f:
-        for l in f:
-            print("**** currently reading::",l)
-            if "<img" in l:
-                matches = re.findall(pattern,l)
-                urllist.append(matches[0])
-                print("****** found an img tab:")
-            elif "<link" in l:
-                found=re.findall(hrefPattern,l)
-                urllist.append(found[0])
-                
+        con=f.read()
+        
+        urllist= pattern.findall(con)
+        urlhref=(hrefPattern.findall(con))
 
-    return urllist
+    return urllist+urlhref
 
-#fileLoc=input("Enter the html file location of the downloaded file:")
-fileLoc="C:\\Users\\ShreeH\\resource"
-#url=input("Enter the url from which the file was downloaded:")
-inputurl='http://west.uni-koblenz.de'
+fileLoc=input("Enter the html file location of the downloaded file:")
+#fileLoc="C:\\Users\\ShreeH\\resource"
+url=input("Enter the url from which the file was downloaded:")
+#nputurl='http://west.uni-koblenz.de'
 
 listOfURL=extractImageUrl(fileLoc)
 
-print("List of URLs",listOfURL)
+print("List of URLs:::::::",listOfURL)
 
 # call the function from another file to download the resource
 
@@ -72,13 +66,13 @@ def savingResources(data,iname):
             else:
                 print('Resource content Extract failed')
 
+#filters out list .css and non image files
+imageList = list(filter(lambda x: x.find('.ico')!=-1 or x.find('.png')!=-1 or x.find('.jpg')!=-1 or x.find('.jpg')!=-1 ,listOfURL))
 
-
-        
-
-
+print("final image list::::",imageList)
 # iterate over the url to download the image 
-for url in listOfURL:
+for url in imageList:
+    
     socClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     path=urllib.parse.urlparse(url).path
     imageName=(path[path.rfind("/")+1:])
@@ -86,9 +80,11 @@ for url in listOfURL:
         #append the input url to construct the absolute path for the image
         
         url=inputurl+url;
+        print("Calling this url:::::",url)
         data = getResource(socClient,url)
         savingResources(data,imageName)
     else:
+        print("Calling this url:::::",url)
         data=getResource(socClient,url)
         savingResources(data,imageName)
     url=None
