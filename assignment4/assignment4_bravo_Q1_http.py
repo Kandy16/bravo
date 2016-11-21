@@ -22,9 +22,13 @@ def getResource(socClient, urlInput):
     urlScheme = urlObj[0] #http
     urlDomain = urlObj[1] #full domain name
     urlPath = urlObj[2]
+    resourceName = (urlPath[urlPath.rfind("/")+1:])
 
     try:
         socClient.connect((urlDomain, 80))
+    except socket.error as e:
+       print('Connection Invalid. Input proper URL !!!',e)
+       return None
     except:
         print('Connection Invalid. Input proper URL !!!')
         return None
@@ -47,7 +51,7 @@ def getResource(socClient, urlInput):
         for char in temp :
             data.append(char)
         temp = socClient.recv(4096)
-    return data
+    return [resourceName, data]
     
 def extractHeaderAndResource(data):
     #The header and resource will be separated  by two \r\n's
@@ -56,41 +60,44 @@ def extractHeaderAndResource(data):
     except:
         splitData = [None, None]
     return splitData
+
+def checkForRequest200(header):
+    splittedHeader = header.split(b' ')
+    #print('Inside check for request 200')
+    #print(splittedHeader)
+    if(splittedHeader):
+        return splittedHeader[1] == b'200'
+    return False
     
-    
-    
+def saveResource(data,iname):
+    fopen = open(iname,'wb')
+    fopen.write(data)
+    fopen.flush()
+    fopen.close()           
     
 
 try :
     socClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #urlInput = input('Input the URL : ')
-    urlInput = 'http://west.uni-koblenz.de/en/mws/dates'
-    #urlInput = 'invalid input'
+    urlInput = input('Input the URL : ')
+    #urlInput = 'http://west.uni-koblenz.de/en/mws/dates/index.html'
+    #urlInput = 'https://www.uni-koblenz-landau.de/de/koblenz/index.html'
+    #urlInput = 'http://west.uni-koblenz.de/en/studying/courses/ws1617/introduction-to-web-science'
+    #urlInput = 'http://blog.ifimbschool.com/wp-content/uploads/2014/12/Hindi-Quote-on-overcoming-obstacles-with-unity-by-Atal-Bihar-Vajpayee-624x467.jpg'
+    #urlInput = 'http://www.w3schools.com/tags/tag_link.asp'
+    #urlInput = 'http://west.uni-koblenz.de/sites/default/files/styles/front-slider/public/fslide_1_0.jpg'
     
-    data = getResource(socClient, urlInput)
-    
+    [name, data] = getResource(socClient, urlInput)
     if (data):
         header,resource = extractHeaderAndResource(data)
-        header = header.decode('utf-8')
-        if(header):
-            fopen = open('resource.header','w')
-            fopen.write(header)
-            fopen.close()
+        if (header):
+            if(checkForRequest200(header)) :
+                saveResource(header,name+'.header')
+                saveResource(resource,name)
+                print('Resource is downloaded successfully !!!')
+            else:
+                print('Invalid Http response !!!!')
         else:
-            print('Header Extract failed')
-            
-        #Check the format of resource and based on that
-        # the serialization will be different
-        
-        resource = resource.decode('utf-8')
-        if(resource):
-            fopen = open('resource','w')
-            fopen.write(resource)
-            fopen.close()
-        else:
-            print('Resource content Extract failed')
-
-               
+            print('Header and Resource extraction is invalid')
     socClient.close()
 finally:
     socClient = None
