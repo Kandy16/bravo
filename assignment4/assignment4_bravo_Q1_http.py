@@ -75,6 +75,22 @@ def saveResource(data,iname):
     fopen.flush()
     fopen.close()           
     
+def downloadResource(socClient, urlInput):
+    [name, data] = getResource(socClient, urlInput)
+    if (data):
+        try:
+            header,resource = extractHeaderAndResource(data)
+            if (header):
+                if(checkForRequest200(header)) :
+                    saveResource(header,name+'.header')
+                    saveResource(resource,name)
+                    print('Resource is downloaded successfully !!!')
+                else:
+                    print('Invalid Http response !!!!')
+            else:
+                print('Header and Resource extraction is invalid')
+        except:
+            print('Error in downloading the resource !!!')
 
 try :
     socClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -86,18 +102,7 @@ try :
     #urlInput = 'http://www.w3schools.com/tags/tag_link.asp'
     #urlInput = 'http://west.uni-koblenz.de/sites/default/files/styles/front-slider/public/fslide_1_0.jpg'
     
-    [name, data] = getResource(socClient, urlInput)
-    if (data):
-        header,resource = extractHeaderAndResource(data)
-        if (header):
-            if(checkForRequest200(header)) :
-                saveResource(header,name+'.header')
-                saveResource(resource,name)
-                print('Resource is downloaded successfully !!!')
-            else:
-                print('Invalid Http response !!!!')
-        else:
-            print('Header and Resource extraction is invalid')
+    downloadResource(socClient, urlInput)
     socClient.close()
 finally:
     socClient = None
