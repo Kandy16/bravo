@@ -7,8 +7,8 @@ Created on Sun Nov 20 22:05:14 2016
 @author: Daniel Akbari
 """
 
-from assign4_p1 import extractHeaderAndResource
-from assign4_p1 import getResource
+from assignment4_bravo_Q1_http import extractHeaderAndResource
+from assignment4_bravo_Q1_http import getResource
 import urllib
 
 import os
