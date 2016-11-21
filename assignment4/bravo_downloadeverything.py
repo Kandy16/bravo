@@ -59,11 +59,16 @@ def savingResources(data,iname):
         if resource is not None:
             print("saving resource",resource)
             if(resource):
-                with open(os.getcwd()+"\\"+iname,'wb') as fopen:
-                    fopen.write(fopen)
-                    #fopen.flush()
+                fopen = open(os.getcwd()+"\\"+iname,'wb')
+                fopen.write(data)
+                fopen.flush()
+                fopen.close()
+#                with open(os.getcwd()+"\\"+iname,'wb') as fopen:
+#                    fopen.write(fopen)
+#                    #fopen.flush()
+#
+#                    fopen.close()
 
-                    fopen.close()
             else:
                 print('Resource content Extract failed')
 
