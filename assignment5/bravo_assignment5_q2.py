@@ -36,7 +36,7 @@ def getResource(socClient, urlInput):
     
     try: 
         urlObj = urllib.parse.urlparse(urlInput)
-        print(urlObj)
+        #print(urlObj)
     except:
         print('Invalid URL',urlInput)
         return None
@@ -89,7 +89,7 @@ def saveResource(data,iname):
     fopen.close()           
     
 def downloadResource(socClient,receivedurl):
-    print("urlInput===========",receivedurl)
+    #print("urlInput===========",receivedurl)
     [name, data] = getResource(socClient,receivedurl)
     if(name == ''):
         name = 'index.html'
@@ -99,9 +99,9 @@ def downloadResource(socClient,receivedurl):
             if (header):
                 if(checkForRequest200(header)) :
                     #saveResource(header,name+'.header')
-                    print("Saving file !!!!",name)
+                    #print("Saving file !!!!",name)
                     saveResource(resource,name)
-                    print('Resource is downloaded successfully !!!')
+                    #print('Resource is downloaded successfully !!!')
                 else:
                     print('Invalid Http response !!!!')
             else:
@@ -114,14 +114,14 @@ def downloadResource(socClient,receivedurl):
 
     
 def extractLinkInformationUrl(fileLocation):
-    print("fileLocation",fileLocation)
+    #print("fileLocation",fileLocation)
     
     try:
         hrefPattern=re.compile(r'<a [^>]*href="([^"]+)')
         path=os.getcwd()+"\\"+fileLocation
         print("file path generated==",path)
         if os.path.isfile(path):
-            print("yes it is a file!!!")
+            #print("yes it is a file!!!")
             with  open(path,"r",encoding='utf8') as file:
                 con=file.read()
                 linkList=(hrefPattern.findall(con))
@@ -132,6 +132,7 @@ def extractLinkInformationUrl(fileLocation):
 
         else:
             print("invalid file path")
+            return[None,None]
             pass
     except IOError as e:
         print("Error in file handling",e)
@@ -170,16 +171,17 @@ try :
     urlInput = 'http://141.26.208.82/articles/g/e/r/Germany.html'
     urlInputObj = urllib.parse.urlparse(urlInput)
     socClient.connect((urlInputObj[1], 80))
-    print("Sending this url====>>",urlInput)
+    #print("Sending this url====>>",urlInput)
     url=urlInput
     file=downloadResource(socClient,url)
     inLinks,outLinks=extractLinkInformationUrl(file)
-    toCrawlLinks=toCrawlLinks+inLinks
+    
+    toCrawlLinks=list(set(toCrawlLinks+inLinks))
+    
+    #print("toCrawlList====",toCrawlLinks)
     counter=len(inLinks)
     linksPerWebPage[file]=len(inLinks)
     #print(linksPerWebPage)            
-    counter=len(outLinks)
-    print("webpage counter",counter)
     inoutList=[None]*2
     inoutList[0]=len(inLinks)
     #toCrawlLinks=toCrawlLinks.append(inLinks)
@@ -190,32 +192,49 @@ try :
     crawledLinks=collections.deque()
     
     
-    for i in toCrawlLinks:
+    toCrawlLinks=list(set(toCrawlLinks))
+    print("length=========",len(toCrawlLinks))
+    
+    
+    
+    intj=0
+    while len(toCrawlLinks)>0:
+#        if intj>300:
+#            print("breaking now!!!")
+#            break
+#    
+        i=toCrawlLinks.pop(0)
+        
         tempClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("Calling url ===",i)
         completeUrl=createFullUrl(url,i)
         tempClient.connect((urlInputObj[1], 80))
         tempFile=downloadResource(tempClient,completeUrl)
-        if not(tempFile):
+        if (tempFile):
             tempInLinks,tempOutLinks=extractLinkInformationUrl(tempFile)
+            if (tempInLinks or tempOutLinks):
                 
-            #add the in links to the toCrawlLinks   list
-            toCrawlLinks.extend(tempInLinks)
-            # keep an record of links found per page
-            linksPerWebPage[tempFile]=len(tempInLinks)
-            # keep an record of number of internalLinks and externalLinks per page
-            tempInOutList=[None]*2
-            tempInOutList[0]=len(tempInLinks)
-            tempInOutList[1]=len(tempOutLinks)
-            intExtWebPageCounter[tempFile]=tempInOutList
-            #tempInOutList= None
-            crawledLinks.append(i)
-            toCrawlLinks.remove(i)
-            counter=counter+len(tempInLinks)
+                print("tempInLinks===",len(list(set(tempInLinks))))
+                #add the in links to the toCrawlLinks   list
+                toCrawlLinks=toCrawlLinks+(list(set(tempInLinks)))
+                tempInOutList=[None]*2
+        #        # keep an record of links found per page
+                linksPerWebPage[tempFile]=(len(tempInLinks)+len(tempOutLinks))
+        #        # keep an record of number of internalLinks and externalLinks per page
+                tempInOutList[0]=len(tempInLinks)
+                tempInOutList[1]=len(tempOutLinks)
+                intExtWebPageCounter[tempFile]=tempInOutList
+        #        print("intExtWebPageCounter",intExtWebPageCounter)
+                tempInOutList= None
+        #        print("currently popped=====",i)
+                crawledLinks.append(i)
+               # toCrawlLinks.remove(i)
+                counter=counter+(len(tempInLinks)+len(tempOutLinks))
             tempClient.close()
-
-        
+#        intj=intj+1
+            
     
+    print("length=========",len(toCrawlLinks))
+
     print("Total Web Pages===",counter)
     print("Internal and External Links per Webpage",intExtWebPageCounter)
     print("Crawled Links====",crawledLinks)
