@@ -1,0 +1,27 @@
+<html>
+<script>
+xmlRequest =  new XMLHttpRequest();
+xmlRequest.onreadystatechange = function() {
+	if(xmlRequest.readyState === XMLHttpRequest.DONE) {
+		if(xmlRequest.status === 200) {
+			document.getElementsByTagName('h1')[0].innerHTML = 'User Input : ' +
+								    xmlRequest.responseText;
+
+			xmlRequest.open('GET','get_user_input',true);
+			xmlRequest.send(null)
+		}
+	}
+}
+xmlRequest.open('GET','get_user_input',true);
+xmlRequest.send()
+</script>
+<head> <title> Simple html file </title> </head>
+<body> 
+This is a simple html file created !!! 
+
+<h1> User Input : </h1>
+
+</body>
+
+</html>
+
