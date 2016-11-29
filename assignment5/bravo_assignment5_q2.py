@@ -8,12 +8,14 @@ Created on Sun Nov 27 19:28:21 2016
 web crawler
 """
 
-
+import logging
 import urllib
 import socket
 import re
 import os
 import collections
+
+logging.basicConfig(filename="info.log",level=logging.INFO)
 
 counter=0
 # total number of wepages encountered till the end
@@ -37,6 +39,7 @@ def getResource(socClient, urlInput):
     try: 
         urlObj = urllib.parse.urlparse(urlInput)
         #print(urlObj)
+        logging.info(urlObj)
     except:
         print('Invalid URL',urlInput)
         return None
@@ -45,7 +48,7 @@ def getResource(socClient, urlInput):
         urlScheme = urlObj[0] #http
         urlDomain = urlObj[1] #full domain name
         urlPath = urlObj[2]
-        resourceName = (urlPath[urlPath.rfind("/")+1:])
+        #resourceName = (urlPath[urlPath.rfind("/")+1:])
         
         # Form the http GET request. Two \r\n at the end is very important
         httpRequest = 'GET ' + urlPath + ' ' + urlScheme+'/1.0\r\n'
@@ -61,7 +64,7 @@ def getResource(socClient, urlInput):
             for char in temp :
                 data.append(char)
             temp = socClient.recv(4096)
-        return [resourceName, data]
+        return [urlPath, data]
     except socket.error as msg:
         print("Error in creating a socket connection",msg)
 
@@ -83,6 +86,10 @@ def checkForRequest200(header):
     return False
     
 def saveResource(data,iname):
+    directoryPath=iname[:iname.rfind("\\")]
+    if not os.path.exists(directoryPath):
+        os.makedirs(directoryPath,exist_ok=True)
+        
     fopen = open(iname,'wb')
     fopen.write(data)
     fopen.flush()
@@ -91,6 +98,9 @@ def saveResource(data,iname):
 def downloadResource(socClient,receivedurl):
     #print("urlInput===========",receivedurl)
     [name, data] = getResource(socClient,receivedurl)
+    localPath=os.getcwd()+name
+    localPath=os.path.normpath(localPath)
+                    
     if(name == ''):
         name = 'index.html'
     if (data):
@@ -99,8 +109,9 @@ def downloadResource(socClient,receivedurl):
             if (header):
                 if(checkForRequest200(header)) :
                     #saveResource(header,name+'.header')
-                    #print("Saving file !!!!",name)
-                    saveResource(resource,name)
+#                    print("Saving file !!!!",name)
+#                    print("sending this location for file===",localPath)
+                    saveResource(resource,localPath)
                     #print('Resource is downloaded successfully !!!')
                 else:
                     print('Invalid Http response !!!!')
@@ -108,18 +119,18 @@ def downloadResource(socClient,receivedurl):
                 print('Header and Resource extraction is invalid for url',urlInput)
         except:
             print('Error in downloading the resource !!!')
-    return name
+    return localPath
 
 ## starting point of the prog
 
     
-def extractLinkInformationUrl(fileLocation):
+def extractLinkInformationUrl(path):
     #print("fileLocation",fileLocation)
     
     try:
         hrefPattern=re.compile(r'<a [^>]*href="([^"]+)')
-        path=os.getcwd()+"\\"+fileLocation
-        print("file path generated==",path)
+        
+        #print("file path received==",path)
         if os.path.isfile(path):
             #print("yes it is a file!!!")
             with  open(path,"r",encoding='utf8') as file:
@@ -140,7 +151,7 @@ def extractLinkInformationUrl(fileLocation):
 
 def createFullUrl(orgUrl,loc):
     url = urllib.parse.urlparse(orgUrl)
-    print(url)
+    #print(url)
     path = url.path
     hostname = "http://"+url[1]
     if path == "":
@@ -193,17 +204,19 @@ try :
     
     
     toCrawlLinks=list(set(toCrawlLinks))
-    print("length=========",len(toCrawlLinks))
+    #print("length=========",len(toCrawlLinks))
     
     
     
     intj=0
     while len(toCrawlLinks)>0:
-#        if intj>300:
+#        if intj>150:
 #            print("breaking now!!!")
 #            break
 #    
+        print("Length of links==",len(toCrawlLinks))
         i=toCrawlLinks.pop(0)
+        #logging.info("popped",i)
         
         tempClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         completeUrl=createFullUrl(url,i)
@@ -213,7 +226,7 @@ try :
             tempInLinks,tempOutLinks=extractLinkInformationUrl(tempFile)
             if (tempInLinks or tempOutLinks):
                 
-                print("tempInLinks===",len(list(set(tempInLinks))))
+                #print("tempInLinks===",len(list(set(tempInLinks))))
                 #add the in links to the toCrawlLinks   list
                 toCrawlLinks=toCrawlLinks+(list(set(tempInLinks)))
                 tempInOutList=[None]*2
@@ -230,14 +243,23 @@ try :
                # toCrawlLinks.remove(i)
                 counter=counter+(len(tempInLinks)+len(tempOutLinks))
             tempClient.close()
-#        intj=intj+1
+        intj=intj+1
+        print("Counter:::",intj)
+        
             
+    print("-----****printing the stats****-----")    
     
-    print("length=========",len(toCrawlLinks))
-
-    print("Total Web Pages===",counter)
+    #print("length=========",len(toCrawlLinks))
+    #logging.info(len(toCrawlLinks))
+    print("Total number of Links found===",counter)
+    #logging.info("Total number of Links found===",counter)
+    print("Total number of WebPages found===",len(crawledLinks))
+    #logging.info("Total number of WebPages found===",len(crawledLinks))
     print("Internal and External Links per Webpage",intExtWebPageCounter)
-    print("Crawled Links====",crawledLinks)
+    #logging.info("Internal and External Links per Webpage",intExtWebPageCounter)
+    #print("Crawled Links====",crawledLinks)
+    print("Links per web Page====",linksPerWebPage)
+    #logging.info("Links per web Page====",linksPerWebPage)
     
     
     
