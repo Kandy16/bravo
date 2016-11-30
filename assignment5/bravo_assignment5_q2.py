@@ -122,16 +122,15 @@ def downloadResource(socClient,receivedurl):
 #    global invalidHttpResponseCounter
     #print("urlInput===========",receivedurl)
     [name, data] = getResource(socClient,receivedurl)
-    name=parse.unquote(name)
-    #print("name",name)
-
-
-    localPath=os.getcwd()+name
-    localPath=os.path.normpath(localPath)
+    
+    
+    if (name):
+        name=parse.unquote(name)
+        #print("name",name)
+        localPath=os.getcwd()+name
+        localPath=os.path.normpath(localPath)
     
                     
-    if(name == ''):
-        name = 'index.html'
     if (data):
         try:
             #print("data is available!!!",data)
@@ -242,48 +241,49 @@ try :
     
     intj=0
     while len(toCrawlLinks)>0:
-#        if intj>150:
+#        if intj>1500:
 #            print("breaking now!!!")
 #            break
     
         #print("Length of links==",len(toCrawlLinks))
         i=toCrawlLinks.pop(0)
-        #logging.info("popped",i)
-        try:
-                
-            tempClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            completeUrl=createFullUrl(url,i)
-            tempClient.connect((urlInputObj[1], 80))
-            tempFile=downloadResource(tempClient,completeUrl)
-            if (tempFile):
-                tempInLinks,tempOutLinks=extractLinkInformationUrl(tempFile)
-                if (tempInLinks or tempOutLinks):
-                    
-                    #print("tempInLinks===",len(list(set(tempInLinks))))
-                    #add the in links to the toCrawlLinks   list
-                    toCrawlLinks=toCrawlLinks+list(set(tempInLinks))
-                    
-                    tempInOutList=[None]*2
-            #        # keep an record of links found per page
-                    linksPerWebPage[tempFile]=(len(tempInLinks)+len(tempOutLinks))
-            #        # keep an record of number of internalLinks and externalLinks per page
-                    tempInOutList[0]=len(tempInLinks)
-                    tempInOutList[1]=len(tempOutLinks)
-                    intExtWebPageCounter[tempFile]=tempInOutList
-            #        print("intExtWebPageCounter",intExtWebPageCounter)
-                    tempInOutList= None
-            #        print("currently popped=====",i)
-                    crawledLinks.append(i)
-                   # toCrawlLinks.remove(i)
-                    counter=counter+(len(tempInLinks)+len(tempOutLinks))
-                tempClient.close()
-        except socket.error as e:
-            pass
-        intj=intj+1
+#        print("crawled or not crawled",i not in crawledLinks)
+        if i not in crawledLinks:
+                #print("Crawling ",i)
+               
+                #logging.info("popped",i)
+                try:
+                                     
+                    tempClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    completeUrl=createFullUrl(url,i)
+                    tempClient.connect((urlInputObj[1], 80))
+                    tempFile=downloadResource(tempClient,completeUrl)
+                    if (tempFile):
+                        tempInLinks,tempOutLinks=extractLinkInformationUrl(tempFile)
+                        if (tempInLinks or tempOutLinks):
+                            
+                            toCrawlLinks=list(set(toCrawlLinks).union(set(tempInLinks)))
+                            tempInOutList=[None]*2
+                    #        # keep an record of links found per page
+                            linksPerWebPage[tempFile]=(len(tempInLinks)+len(tempOutLinks))
+                    #        # keep an record of number of internalLinks and externalLinks per page
+                            tempInOutList[0]=len(tempInLinks)
+                            tempInOutList[1]=len(tempOutLinks)
+                            intExtWebPageCounter[tempFile]=tempInOutList
+                    #        print("intExtWebPageCounter",intExtWebPageCounter)
+                            tempInOutList= None
+                    #        print("currently popped=====",i)
+                            crawledLinks.append(i)
+#                            print("crawled List counter=",len(crawledLinks))
+                            counter=counter+(len(tempInLinks)+len(tempOutLinks))
+                        tempClient.close()
+                except socket.error as e:
+                    pass
+                intj=intj+1
         if intj%100==0:
             print("Counter:::",intj)
             #print("Invalid Response Counter:::",len(invalidHttpResponseCounter))
-            print("toCrawlLinks length",len(toCrawlLinks))
+#            print("toCrawlLinks length",len(toCrawlLinks))
         
         
             
@@ -294,8 +294,8 @@ try :
     #print("Invalid links==",invalidHttpResponseCounter)
     print("Total number of Links found===",counter)
     print("***************************")
-    #logging.info("Total number of Links found===",counter)
-    print("Total number of WebPages found===",len(crawledLinks))
+    #logging.info("Total number of Links ===",counter)
+    print("Total number of WebPages ===",webpageCounter)
     print("***************************")
     #logging.info("Total number of WebPages found===",len(crawledLinks))
     print("Internal and External Links per Webpage",intExtWebPageCounter)
