@@ -6,6 +6,11 @@ Created on Sun Nov 27 19:28:21 2016
 @author: Kandhasamy Rajasekaran
 @author: Daniel Akbari
 web crawler
+
+Assumptions
+links = number of internal & external links per page
+webpage= a page which is physically downloaded
+
 """
 
 import logging
@@ -35,7 +40,7 @@ toCrawlLinks=[]
 intExtWebPageCounter={}
 
 invalidHttpResponseCounter=[]
-
+webpageCounter=0
 
 
     
@@ -95,6 +100,7 @@ def checkForRequest200(header):
     return False
     
 def saveResource(data,iname):
+    global webpageCounter
     try:
         #print("iname==",iname)
         directoryPath=iname[:iname.rfind("\\")]
@@ -107,6 +113,7 @@ def saveResource(data,iname):
         fopen.write(data)
         fopen.flush()
         fopen.close()
+        webpageCounter=webpageCounter+1
     except IOError as io:
          pass
            
@@ -235,9 +242,9 @@ try :
     
     intj=0
     while len(toCrawlLinks)>0:
-#        if intj>1500:
-#            print("breaking now!!!")
-#            break
+        if intj>150:
+            print("breaking now!!!")
+            break
     
         #print("Length of links==",len(toCrawlLinks))
         i=toCrawlLinks.pop(0)
