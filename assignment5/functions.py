@@ -2,25 +2,33 @@
 """
 Created on Mon Nov 28 08:14:25 2016
 
-@author: Daniel
+@author: Daniel Akbari
+@author: Shriharsh Ambhore
+@author: Kandhasamy Rajasekaran
 """
 
 
-import numpy 
+import statistics 
 import matplotlib.pyplot as plt
 
 
-#list=input('Input')
-def Average(list):
-    return sum (list)/float(len(list))
+#list=input('dict with key as web page and number of links per webpage as value')
+def Average(linksPerWebPage):
     
-def Median(list):
-    return numpy.median(numpy.array(list))
+    valueList=list(linksPerWebPage.values())
+    avg=(sum(valueList)/(len(valueList)))
+    return avg
+    
+def Median(linksPerWebPage):
+    valueList=list(linksPerWebPage.values())
+    return statistics.median(valueList)
 
-def Histogram(list):
-    plt.hist(list,bins=5)
+def Histogram(linksPerWebPage):
+    plt.hist(list(linksPerWebPage.values()),bins=5)
     plt.title('Histogram')
     plt.xlim(0,150)
+    plt.xlabel("Bins")
+    plt.ylabel("Frequencey")
     plt.show()
     
 def Plot(x,y):
@@ -39,11 +47,11 @@ def Plot(x,y):
     plt.legend()
      
     plt.show()
-    
-list=[1,2,3,5,11,75]
-x=[2,6,5,9,15,17]
-y=[4,1,5,9,18,7]
-print ('Average is:', Average(list))
-print ('Median is:',Median(list))
-print (Plot(x,y))
-print (Histogram(list))
+#    
+#list=[1,2,3,5,11,75]
+#x=[2,6,5,9,15,17]
+#y=[4,1,5,9,18,7]
+#print ('Average is:', Average(list))
+#print ('Median is:',Median(list))
+##print (Plot(x,y))
+#print (Histogram(list))
