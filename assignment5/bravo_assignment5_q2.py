@@ -242,9 +242,9 @@ try :
     
     intj=0
     while len(toCrawlLinks)>0:
-        if intj>150:
-            print("breaking now!!!")
-            break
+#        if intj>150:
+#            print("breaking now!!!")
+#            break
     
         #print("Length of links==",len(toCrawlLinks))
         i=toCrawlLinks.pop(0)
