@@ -1,0 +1,24 @@
+1) First question is answered by bravo_assignment5_q1.py. It runs the server and serves the file which is inside 'www' folder - index.html
+2) Second and third question are clubbed together and put in bravo_assignment5_q2.py
+
+Right now, it has configured to run with server 141.*.*.*, But when we tried hosting the server, we had some issues and tweak the code.
+
+
+The code to host the server is bravo_assignment5_host.py.
+If the code has to run with local host then we suggest to make changes at two places
+Inside the file bravo_assignment5_q2
+
+ splitData = data.split(b'\r\n\r\n') #for actual testing
+ #splitData = data.split(b'\n\n',1) # for local instance
+
+Uncomment the second line. Somehow carriage return were getting missed out.
+
+
+    urlInput='http://141.26.208.82/articles/g/e/r/Germany.html'
+    #urlInput = 'http://localhost/articles/g/e/r/Germany.html'
+
+Change the url above.
+
+
+Happy testing :-)
+
