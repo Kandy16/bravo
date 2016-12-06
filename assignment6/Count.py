@@ -40,22 +40,6 @@ with codecs.open(filename , encoding='utf-8') as file:
             y.append(line)
 x.sort() 
            
-def Plot(x,y):
-    # Create a figure of size 8x6 inches, 80 dots per inch
-    plt.figure(figsize=(8, 6), dpi=80)
-    # Create a new subplot from a grid of 1x1
-    plt.subplot(1, 1, 1)
-        
-    plt.title('Internal & External Links')
-    plt.xlabel('Internal Links')
-    plt.ylabel('External Links')
-    plt.grid(True)
-     
-    plt.scatter(x,y,color="red")
-    #plt.scatter(list,y, color="blue", label="External")
-    plt.legend()
-     
-    plt.show()
 
 def Histogram(x):
     letter_counts = Counter(x)
