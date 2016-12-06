@@ -18,7 +18,7 @@ num_lines = 0
 num_words = 0
 num_Enchars = 0
 num_Othchars =0
-i=0
+
 x= list()
 y= list()
 
@@ -26,11 +26,11 @@ y= list()
 with codecs.open(filename , encoding='utf-8') as file:
 #with codecs.open(filename) as file:
     text = file.read()
-    
+    text= text.replace(" ", "")
     for line in text:
         words = line.split()
         num_words += len(words)
-        if line in alphabet and not "":
+        if line.strip() in alphabet:
            
             num_Enchars += len(line)
             x.append(line.lower())
@@ -38,8 +38,10 @@ with codecs.open(filename , encoding='utf-8') as file:
         else:
             num_Othchars +=len(line)
             y.append(line)
+            
 x.sort() 
-           
+#print(x)
+#print(y)          
 
 def Histogram(x):
     letter_counts = Counter(x)
@@ -48,7 +50,7 @@ def Histogram(x):
    
     #plt.hist(len(letter_counts),bins=5)
     plt.title('Histogram')
-    plt.xlim(-2,30)
+    plt.xlim(-2,32)
     plt.xlabel("Alphabet")
     plt.ylabel("Frequencey")
     plt.show()
