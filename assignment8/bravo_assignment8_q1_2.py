@@ -2,11 +2,6 @@
 # coding: utf-8
 
 import pandas as pd
-import numpy as np
-import sys
-from collections import  Counter
-import math
-
 
 store=pd.HDFStore("store2.h5")
 #df1=store['df1']
@@ -18,6 +13,10 @@ print(out_link_df.columns)
 def calcJaccardSimilarity(wordset1, wordset2):
     wordset1=set(wordset1)
     wordset2=set(wordset2)
+    # we wanted to make the article names case insensitive
+    wordset1 = {x.lower() for x in wordset1}
+    wordset2 = {x.lower() for x in wordset2}
+
     inter=wordset1.intersection(wordset2)
     union=wordset1.union(wordset2)
     jc=(len(inter)/len(union))
