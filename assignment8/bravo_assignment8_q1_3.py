@@ -7,15 +7,19 @@ import sys
 from collections import  Counter
 import math
 
+#import bravo_assignment8_q1_1 as q1
 
 store=pd.HDFStore("store2.h5")
-df1=store['df1']
+text_df = store['df1']
+out_link_df=store['df2']
 
-#split on space for each and every article
+text_df = text_df.iloc[0:10]
+#print(text_df.head)
+out_link_df = out_link_df.iloc[0:10]
+
 
 # following code creates a word set for each and every article
-copyDF=df1.copy()
-copyDF['wordset']=copyDF.text.map(lambda x: set(x.lower().split()))
+text_df['wordset']=text_df.text.map(lambda x: set(x.lower().split()))
 
 
 def calcJaccardSimilarity(wordset1, wordset2):
@@ -25,20 +29,9 @@ def calcJaccardSimilarity(wordset1, wordset2):
     union=wordset1.union(wordset2)
     jc=(len(inter)/len(union))
     return jc
+    
 
-Germany=copyDF['wordset'][copyDF['name']=='Germany']
-Europe=copyDF['wordset'][copyDF['name']=='Europe']
-
-#print(Germany.tolist()[0])
-#print('*****words in article splitted on space*****')
-print('Jaccard coefficent for articles Germany and Europe:',calcJaccardSimilarity(Germany.tolist()[0],Europe.tolist()[0]))
-
-
-# In order to find cosine similarity - we need term frequency, document frequency (inverse of it)
-# tf-idf score
-# following creates term frequency
-copyDF['termfrequency']=copyDF.text.map(lambda x: Counter(x.lower().split()).items())
-
+text_df['termfrequency']=text_df.text.map(lambda x: Counter(x.lower().split()).items())
 
 # it goes through each article's wordset and find the document freq
 def temp_docfreq_function(rows):
@@ -55,9 +48,9 @@ def temp_docfreq_function(rows):
 
     return dictofwords
 
-docFreqDict=temp_docfreq_function(copyDF['wordset'])
+docFreqDict=temp_docfreq_function(text_df['wordset'])
 
-d=len(copyDF['name']) # row size
+d=len(text_df['name']) # row size
 
 def temp_tfidf_function(wordHist):
     ##tf-idf= tf of word * (number of documents/df(word))
@@ -76,22 +69,13 @@ def temp_tfidf_function(wordHist):
                    
     return dictofwords
 
-#tfidfDict=temp_tfidf_function(copyDF['termfrequency'][0],len(copyDF['name']))
 ## creating a coulum tfidf for each word in an article
-copyDF['tfidf']=copyDF.termfrequency.map(temp_tfidf_function)
+text_df['tfidf']=text_df.termfrequency.map(temp_tfidf_function)
 
-def calculateCosineSimilarity(doc1, doc2):
+def calculateCosineSimilarity(dict1, dict2):
+    
+    
 
-    temp=doc1.iteritems()
-    temp2=doc2.iteritems()
-    dict1=None
-    dict2=None
-    # the data structure is a list with two elements and second element is the dictonary
-    # that we wanted
-    for t2 in temp2:
-        dict2=t2[1]
-    for t in temp:
-        dict1=(t[1])    
     dotprod=0
     for k1 in dict1:
         if k1 in dict2.keys():
@@ -110,15 +94,32 @@ def calculateCosineSimilarity(doc1, doc2):
     
     return cosinesimilarity
     
-  
-  
-CSGermany=copyDF['tfidf'][copyDF['name']=='Germany']
-CSEurope=copyDF['tfidf'][copyDF['name']=='Europe']
+print('---------------------------------------------------------------------')
 
-#print(CSEurope)
+#print(text_df['name'])
+#print(out_link_df['name'])
 
+germanListRank = []
+germanRow = text_df[text_df['name']=='German']
+j = 0
+rows_count = text_df.shape[0]
 
-            
-print('Cosine Similarity of articles Germany and Europe:',calculateCosineSimilarity(CSGermany,CSEurope))
-print(type(CSGermany))
-print(type(CSEurope))
+while (j < rows_count):
+    row = text_df.iloc[j]
+    
+    germanListRank.append(calculateCosineSimilarity(row['tfidf'], germanRow['tfidf'].iloc[0]))
+    j = j + 1
+    #print(type(row))
+    #print(type(germanRow['tfidf']))
+    #break
+print(germanListRank)
+'''    
+for row in text_iterate:
+    #print(row[0])
+    #print(row[1].tfidf)
+    print(type(germanRow['tfidf']))
+    print(type(row[1]['tfidf']))
+    germanListRank.append(calculateCosineSimilarity(germanRow['tfidf'], row[1]['tfidf']))
+    #print(type(row))
+    break
+'''
