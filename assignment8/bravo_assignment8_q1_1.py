@@ -13,12 +13,9 @@ df1=store['df1']
 
 #split on space for each and every article
 
-splittedArticles=df1[:].text.str.split()   # returns a series of splitted text
-
-
 # following code creates a word set for each and every article
 copyDF=df1.copy()
-copyDF['wordset']=copyDF.text.map(lambda x: set(x.split()))
+copyDF['wordset']=copyDF.text.map(lambda x: set(x.lower().split()))
 
 
 def calcJaccardSimilarity(wordset1, wordset2):
