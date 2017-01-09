@@ -9,7 +9,7 @@ import math
 
 #import bravo_assignment8_q1_1 as q1
 
-store=pd.HDFStore("store2.h5")
+store=pd.HDFStore("C:\\Users\\ShreeH\\Desktop\\store2.h5")
 text_df = store['df1']
 out_link_df=store['df2']
 
@@ -73,9 +73,6 @@ def temp_tfidf_function(wordHist):
 text_df['tfidf']=text_df.termfrequency.map(temp_tfidf_function)
 
 def calculateCosineSimilarity(dict1, dict2):
-    
-    
-
     dotprod=0
     for k1 in dict1:
         if k1 in dict2.keys():
@@ -99,20 +96,22 @@ print('---------------------------------------------------------------------')
 #print(text_df['name'])
 #print(out_link_df['name'])
 
-germanListRank = []
+germanJackardListRank = []
+germanCosineSimilarityListRank = []
 germanRow = text_df[text_df['name']=='German']
 j = 0
 rows_count = text_df.shape[0]
 
 while (j < rows_count):
     row = text_df.iloc[j]
-    
-    germanListRank.append(calculateCosineSimilarity(row['tfidf'], germanRow['tfidf'].iloc[0]))
+    germanCosineSimilarityListRank.append(calculateCosineSimilarity(row['tfidf'], germanRow['tfidf'].iloc[0]))
+    germanJackardListRank.append(calcJaccardSimilarity(row['wordset'], germanRow['wordset'].iloc[0]))
     j = j + 1
-    #print(type(row))
-    #print(type(germanRow['tfidf']))
-    #break
-print(germanListRank)
+   
+    
+print(germanCosineSimilarityListRank)
+print(germanJackardListRank)
+
 '''    
 for row in text_iterate:
     #print(row[0])
