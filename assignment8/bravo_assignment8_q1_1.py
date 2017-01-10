@@ -120,5 +120,5 @@ CSEurope=copyDF['tfidf'][copyDF['name']=='Europe']
 
             
 print('Cosine Similarity of articles Germany and Europe:',calculateCosineSimilarity(CSGermany,CSEurope))
-print(type(CSGermany))
-print(type(CSEurope))
+#print(type(CSGermany))
+#print(type(CSEurope))

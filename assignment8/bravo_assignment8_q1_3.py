@@ -6,13 +6,14 @@ import numpy as np
 import sys
 from collections import  Counter
 import math
+import time
 
 #import bravo_assignment8_q1_1 as q1
 
 store=pd.HDFStore("store2.h5")
 text_df = store['df1']
 out_link_df=store['df2']
-
+#print(text_df.shape)
 corpus_size = 75
 
 text_df = text_df.iloc[0:corpus_size]
@@ -96,7 +97,7 @@ def calculateCosineSimilarity(dict1, dict2):
     
     return (1 - cosinesimilarity) # we wanted to reverse it to compare it with jaccard coefficient
     
-print('---------------------------------------------------------------------')
+#print('---------------------------------------------------------------------')
 
 #print(text_df['name'])
 #print(out_link_df['name'])
@@ -112,15 +113,20 @@ rows_count = text_df.shape[0]
 while (j < rows_count):
     row = text_df.iloc[j]
     out_link_row = out_link_df.iloc[j]
+    start_time = time.time()
     germanCosineSimilarityListRank.append(calculateCosineSimilarity(row['tfidf'], germanRow['tfidf'].iloc[0]))
+    end_time = time.time()
     germanJackardListRank.append(calcJaccardSimilarity(row['wordset'], germanRow['wordset'].iloc[0]))
     germanJackardListRank_links.append(calcJaccardSimilarity(out_link_row['out_links'], germanRow_link['out_links'].iloc[0]))
+    
     j = j + 1
+    #break
    
+
+print('time taken - ',(end_time - start_time))
     
-    
-print(germanCosineSimilarityListRank)
-print(germanJackardListRank)
+#print(germanCosineSimilarityListRank)
+#print(germanJackardListRank)
 
 def kendalls_tau(list1, list2):
     score = 0
@@ -160,3 +166,4 @@ for row in text_iterate:
     #print(type(row))
     break
 '''
+
